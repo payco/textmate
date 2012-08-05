@@ -309,28 +309,13 @@ namespace path
 
 	bool is_local (std::string const& path)
 	{
-#if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_6
 		CFURLRef url = CFURLCreateFromFileSystemRepresentation(kCFAllocatorDefault, (UInt8 const*)path.data(), path.size(), is_directory(path));
 		if(!url) return false;
 		CFBooleanRef pathIsLocal;
-		bool ok=CFURLCopyResourcePropertyForKey(url, kCFURLVolumeIsLocalKey, &pathIsLocal, NULL);		
+		bool ok = CFURLCopyResourcePropertyForKey(url, kCFURLVolumeIsLocalKey, &pathIsLocal, NULL);		
 		CFRelease(url);
 		if(!ok) return false;
-		return (pathIsLocal==kCFBooleanTrue);
-#else
-		FSCatalogInfo catInfo;
-		if(FSGetCatalogInfo(fsref_t(path), kFSCatInfoVolume, &catInfo, NULL, NULL, NULL) == noErr)
-		{
-			GetVolParmsInfoBuffer volParms;
-			if(FSGetVolumeParms(catInfo.volume, &volParms, sizeof(volParms)) != noErr)
-				return false;
-			// OK if it looks like a local disk (which includes DMGs)
-			if(volParms.vMDeviceID != NULL && strstr((const char *)volParms.vMDeviceID,"disk") == volParms.vMDeviceID) return true;
-			// OK if bIsOnInternalBus is set
-			return volParms.vMVersion > 2 && (volParms.vMExtendedAttributes & (1UL << bIsOnInternalBus)) ? true : false;
-		}
-		return false;
-#endif		
+		return (pathIsLocal == kCFBooleanTrue);
 	}
 
 	bool is_trashed (std::string const& path)
