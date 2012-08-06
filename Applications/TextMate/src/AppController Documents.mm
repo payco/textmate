@@ -87,7 +87,7 @@ static NSString* const OakGlobalSessionInfo = @"OakGlobalSessionInfo";
 				std::string key = to_s([[keyValue firstObject] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]);
 				NSURL* fileURL = key == "url" ? [NSURL URLWithString:[keyValue lastObject]] : nil;
 				parameters[key] = to_s([fileURL isFileURL] ? [fileURL path] : [[keyValue lastObject] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]);
-				hadURL = (key == "url");
+				hadURL |= (key == "url");
 			}
 		}
 		
@@ -98,8 +98,6 @@ static NSString* const OakGlobalSessionInfo = @"OakGlobalSessionInfo";
 			if([controller isKindOfClass:[DocumentController class]] && !controller->documentTabs.empty())
 			{
 				NSString* path=[controller documentFilePath];
-				
-				NSLog(@"path: %@",path);
 				
 				if(path && [path length] > 0) parameters["url"] = to_s(path);
 			}
